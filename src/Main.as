@@ -2,7 +2,11 @@ package
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import menus.MainMenu;
+	import flash.events.KeyboardEvent;
+	import input.AxisBinding;
+	import input.InputController;
+	import input.InputEvent;
+	import input.InputLayout;
 	
 	/**
 	 * ...
@@ -10,8 +14,6 @@ package
 	 */
 	public class Main extends Sprite 
 	{
-		
-		private var menu:MainMenu;
 		
 		public function Main() 
 		{
@@ -22,9 +24,9 @@ package
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			
-			menu = new MainMenu(stage);
-			stage.addChild(menu);
+			InputController.getInstance(stage);
+			InputLayout.getInstance().createAxis("MoveXAxis").bindTo(InputEvent.A_KEY_DOWN, -1).bindTo(InputEvent.D_KEY_DOWN, 1);
+			InputLayout.getInstance().deleteAxis("MoveXAxis");
 		}
 		
 	}
