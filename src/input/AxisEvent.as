@@ -1,0 +1,30 @@
+package input 
+{
+	import flash.events.Event;
+	
+	/**
+	 * An AxisEvent object is dispatched when appropriate keys/controller axes were triggered.
+	 * ActorController`s methods are implied to be bound to AxisEvents.
+	 * @author Tommy
+	 */
+	public class AxisEvent extends Event 
+	{
+		
+		public static const AXIS_ALTERED = "axisAltered";
+		
+		public var result:Object;
+		
+		public function AxisEvent(type:String, result:Object, bubbles:Boolean=false, cancelable:Boolean=false) 
+		{
+			super(type, bubbles, cancelable);
+			this.result = result;
+		}
+		
+		public override function clone():Event
+		{
+			return new AxisEvent(type, result, bubbles, cancelable);
+		}
+		
+	}
+
+}
