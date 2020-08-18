@@ -1,6 +1,9 @@
 package actors.controllers 
 {
-	import flash.events.Event;
+	import actors.models.Platform;
+	import flash.display.Stage;
+	import input.InputLayout;
+	
 	/**
 	 * ...
 	 * @author Tommy
@@ -8,13 +11,26 @@ package actors.controllers
 	public class PlatformController 
 	{
 		
-		public function PlatformController() 
+		public static function MoveRight(platform:Platform, scale:Number, stage:Stage):void
 		{
+			/*var resultPosition:Number = platform.x + scale * platform.speed;
 			
+			if (resultPosition  + platform.width <= stage.width && resultPosition >= 0)
+			{
+				platform.x = resultPosition;
+			}*/
+			
+			platform.x += scale * platform.speed;
 		}
 		
-		public static function onEnterFramEventHandler(event:Event):void
+		public static function activate(platform:Platform):void
 		{
+			InputLayout.getInstance().bindAxis("MoveRightAxis", platform.onMoveRightEventHandler);
+		}
+		
+		public static function deactivate(platform:Platform):void
+		{
+			InputLayout.getInstance().unbindAxis("MoveRightAxis", platform.onMoveRightEventHandler);
 		}
 		
 	}

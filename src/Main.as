@@ -1,9 +1,9 @@
 package
 {
+	import actors.ActorsManager;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
-	import input.AxisBinding;
 	import input.InputController;
 	import input.InputEvent;
 	import input.InputLayout;
@@ -23,10 +23,19 @@ package
 		
 		private function init(e:Event = null):void 
 		{
+			// Components initialization //
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			InputController.getInstance(stage);
-			InputLayout.getInstance().createAxis("MoveXAxis").bindTo(InputEvent.A_KEY_DOWN, -1).bindTo(InputEvent.D_KEY_DOWN, 1);
-			InputLayout.getInstance().deleteAxis("MoveXAxis");
+			setUpLayout();
+			ActorsManager.initialize(stage);
+			
+			// Spawnig objects //
+			ActorsManager.createPlatform(200, 20, 25, 0xFD06AB, "playerPlatform", 150, 290);
+		}
+		
+		private function setUpLayout():void
+		{
+			InputLayout.getInstance().createAxis("MoveRightAxis").bindTo(InputEvent.A_KEY_DOWN, -1).bindTo(InputEvent.D_KEY_DOWN, 1);
 		}
 		
 	}
