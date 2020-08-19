@@ -32,12 +32,14 @@ package actors.models
 			this.y = y;
 			this.name = name ? name : NameUtil.createUniqueName(this);
 			_disposed = false;
+			
+			render();
 		}
 		
 		public function render():void
 		{
 			graphics.beginFill(color);
-			graphics.drawRect(x, y, width, height);
+			graphics.drawRect(0, 0, width, height);
 			graphics.endFill();
 		}
 		
@@ -90,7 +92,7 @@ package actors.models
 		
 		/* INTERFACE interfaces.IDisposable */
 		
-		public function Dispose():void
+		public function dispose():void
 		{
 			if (!_disposed)
 			{

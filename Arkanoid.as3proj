@@ -5,13 +5,13 @@
     <movie outputType="Application" />
     <movie input="" />
     <movie path="bin\Arkanoid.swf" />
-    <movie fps="30" />
+    <movie fps="2" />
     <movie width="800" />
     <movie height="600" />
     <movie version="28" />
     <movie minorVersion="0" />
     <movie platform="Flash Player" />
-    <movie background="#FFFFFF" />
+    <movie background="#ADAAA7" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>

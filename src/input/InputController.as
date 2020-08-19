@@ -1,6 +1,7 @@
 package input
 {
 	import flash.display.Stage;
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	import flash.events.KeyboardEvent;
@@ -30,6 +31,7 @@ package input
 				// Subscribing to events //
 				_inputSource.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDownEventHandler);
 				_inputSource.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMoveEventHandler);
+				_inputSource.addEventListener(Event.ENTER_FRAME, onEnterFramEventHandler);
 			}
 			else
 			{
@@ -62,8 +64,15 @@ package input
 		}
 		
 		// Event handlers //
+		private function onEnterFramEventHandler(e:Event):void 
+		{
+			trace("ENTER_FRAME event polled");
+		}
+		
 		private function onKeyDownEventHandler(e:KeyboardEvent):void
 		{
+			trace("KEY_DOWN event polled");
+			
 			if (_keyBindings[e.keyCode] !== undefined)
 			{
 				dispatchEvent(new InputEvent(_keyBindings[e.keyCode]));

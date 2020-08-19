@@ -81,7 +81,7 @@ package input
 			{
 				if (_axisBindings[index].name == name)
 				{
-					_axisBindings[index].Dispose();
+					_axisBindings[index].dispose();
 					_axisBindings.removeAt(index);
 					break;
 				}

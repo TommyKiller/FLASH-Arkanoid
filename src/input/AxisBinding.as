@@ -97,7 +97,7 @@ package input
 			return this;
 		}
 		
-		public function Dispose():void
+		public function dispose():void
 		{
 			if (!_disposed)
 			{

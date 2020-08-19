@@ -2,13 +2,13 @@
 bin-debug/
 bin-release/
 [Oo]bj/
-[Bb]in/
+#[Bb]in/
 
 # Other files and folders
 .settings/
 
 # Executables
-*.swf
+#*.swf
 *.air
 *.ipa
 *.apk

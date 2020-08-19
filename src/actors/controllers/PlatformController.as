@@ -13,14 +13,12 @@ package actors.controllers
 		
 		public static function MoveRight(platform:Platform, scale:Number, stage:Stage):void
 		{
-			/*var resultPosition:Number = platform.x + scale * platform.speed;
+			var resultPosition:Number = platform.x + scale * platform.speed;
 			
-			if (resultPosition  + platform.width <= stage.width && resultPosition >= 0)
+			if (resultPosition + platform.width <= stage.stageWidth && resultPosition >= 0)
 			{
 				platform.x = resultPosition;
-			}*/
-			
-			platform.x += scale * platform.speed;
+			}
 		}
 		
 		public static function activate(platform:Platform):void

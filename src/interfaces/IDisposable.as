@@ -7,7 +7,7 @@ package interfaces
 	 */
 	public interface IDisposable 
 	{
-		function Dispose():void;
+		function dispose():void;
 	}
 	
 }

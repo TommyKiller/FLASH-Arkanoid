@@ -30,7 +30,7 @@ package
 			ActorsManager.initialize(stage);
 			
 			// Spawnig objects //
-			ActorsManager.createPlatform(200, 20, 25, 0xFD06AB, "playerPlatform", 150, 290);
+			ActorsManager.createPlatform(200, 20, 25, 0xFD06AB, "playerPlatform", stage.stageWidth / 2 - 100, stage.stageHeight - 20);
 		}
 		
 		private function setUpLayout():void

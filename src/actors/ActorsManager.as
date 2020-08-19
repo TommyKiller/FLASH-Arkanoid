@@ -23,7 +23,6 @@ package actors
 		public static function createPlatform(width:Number, height:Number, speed:uint, color:uint, name:String = null, x:Number = 0, y:Number = 0):Platform
 		{
 			var platform:Platform = new Platform(width, height, speed, color, name, x, y);
-			platform.render();
 			_collisionList.addItem(platform);
 			_stage.addChild(platform);
 			PlatformController.activate(platform);
