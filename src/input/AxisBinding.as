@@ -4,6 +4,11 @@ package input
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	import flash.utils.Dictionary;
+	import input.events.AxisEvent;
+	import input.events.AxisEventResult;
+	import input.events.InputControllerEvent;
+	import input.events.InputEvent;
+	import input.events.InputEventState;
 	import interfaces.IDisposable;
 	
 	/**
@@ -29,6 +34,14 @@ package input
 			_upperBound = upperBound
 			_disposed = false;
 			_bindings = new Dictionary();
+			_bindings[InputController.INPUT_PROCESSED] = function(e:InputControllerEvent):void
+			{
+				if (_axisValue != 0)
+				{
+					dispatchEvent(new AxisEvent(AxisEvent.AXIS_ALTERED, new AxisEventResult(_axisValue)));
+				}
+			};
+			InputController.getInstance().addEventListener(InputController.INPUT_PROCESSED, _bindings[InputController.INPUT_PROCESSED]);
 		}
 		
 		// Get/set methods //
@@ -46,9 +59,6 @@ package input
 		public function set axisValue(value:Number):void
 		{
 			_axisValue = Math.max(lowerBound, Math.min(value, upperBound));
-			var result:Object = {value: _axisValue};
-			dispatchEvent(new AxisEvent(AxisEvent.AXIS_ALTERED, result));
-			_axisValue = 0;
 		}
 		
 		public function get lowerBound():Number
@@ -88,9 +98,16 @@ package input
 		// Class functionality //
 		public function bindTo(event:String, scale:Number):AxisBinding
 		{
-			_bindings[event] = function():void
+			_bindings[event] = function(event:InputEvent):void
 			{
-				axisValue += scale
+				if (event.state == InputEventState.PUSHED)
+				{
+					axisValue += scale;
+				}
+				else if (event.state == InputEventState.HANDLED)
+				{
+					axisValue -= scale;
+				}
 			};
 			InputController.getInstance().addEventListener(event, _bindings[event]);
 			
@@ -101,9 +118,9 @@ package input
 		{
 			if (!_disposed)
 			{
-				for (var key:Object in _bindings)
+				for (var key:String in _bindings)
 				{
-					InputController.getInstance().removeEventListener(key as String, _bindings[key]);
+					InputController.getInstance().removeEventListener(key, _bindings[key]);
 				}
 				
 				_disposed = true;

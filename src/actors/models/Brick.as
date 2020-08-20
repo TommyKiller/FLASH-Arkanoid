@@ -1,31 +1,27 @@
-package actors.models
+package actors.models 
 {
 	import actors.ActorsManager;
-	import actors.controllers.PlatformController;
-	import flash.display.Shape;
 	import flash.display.Sprite;
-	import input.events.AxisEvent;
 	import interfaces.IDisposable;
 	import interfaces.IRenderable;
-	import mx.utils.NameUtil
+	import mx.utils.NameUtil;
 	
 	/**
 	 * ...
 	 * @author Tommy
 	 */
-	public class Platform extends Sprite implements IDisposable, IRenderable
+	public class Brick extends Sprite implements IDisposable, IRenderable
 	{
+		
 		private var _width:Number;
 		private var _height:Number;
-		private var _speed:uint;
 		private var _color:uint;
 		private var _disposed:Boolean;
 		
-		public function Platform(width:Number, height:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null)
+		public function Brick(width:Number, height:Number, color:uint, x:Number = 0, y:Number = 0, name:String = null) 
 		{
 			this.width = width;
 			this.height = height;
-			_speed = speed;
 			_color = color;
 			this.x = x;
 			this.y = y;
@@ -35,12 +31,7 @@ package actors.models
 			render();
 		}
 		
-		// Get/set methods //
-		public function get speed():Number
-		{
-			return _speed;
-		}
-		
+		// Get/set methods //		
 		public function get color():uint
 		{
 			return _color;
@@ -55,7 +46,7 @@ package actors.models
 		{
 			if (value <= 0)
 			{
-				throw new Error("Width of the platform must be greater than 0.");
+				throw new Error("Width of the brick must be greater than 0.");
 			}
 			
 			_width = value;
@@ -70,16 +61,10 @@ package actors.models
 		{
 			if (value <= 0)
 			{
-				throw new Error("Height of the platform must be greater than 0.");
+				throw new Error("Height of the brick must be greater than 0.");
 			}
 			
 			_height = value;
-		}
-		
-		// Event handlers //
-		public function onMoveRightEventHandler(event:AxisEvent):void
-		{
-			PlatformController.MoveRight(this, event.result.axisValue);
 		}
 		
 		/* INTERFACE interfaces.IDisposable */
@@ -89,7 +74,6 @@ package actors.models
 			if (!_disposed)
 			{
 				ActorsManager.removeObject(this);
-				PlatformController.deactivate(this);
 				_disposed = true;
 			}
 		}
@@ -102,7 +86,7 @@ package actors.models
 			graphics.drawRect(0, 0, width, height);
 			graphics.endFill();
 		}
-	
+		
 	}
 
 }

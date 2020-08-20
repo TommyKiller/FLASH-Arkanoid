@@ -1,4 +1,4 @@
-package input 
+package input.events 
 {
 	import flash.events.Event;
 	
@@ -12,9 +12,9 @@ package input
 		
 		public static const AXIS_ALTERED:String = "axisAltered";
 		
-		public var result:Object;
+		public var result:AxisEventResult;
 		
-		public function AxisEvent(type:String, result:Object, bubbles:Boolean=false, cancelable:Boolean=false) 
+		public function AxisEvent(type:String, result:AxisEventResult, bubbles:Boolean=false, cancelable:Boolean=false) 
 		{
 			super(type, bubbles, cancelable);
 			this.result = result;

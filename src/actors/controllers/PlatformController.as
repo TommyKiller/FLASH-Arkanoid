@@ -11,11 +11,11 @@ package actors.controllers
 	public class PlatformController 
 	{
 		
-		public static function MoveRight(platform:Platform, scale:Number, stage:Stage):void
+		public static function MoveRight(platform:Platform, scale:Number):void
 		{
 			var resultPosition:Number = platform.x + scale * platform.speed;
 			
-			if (resultPosition + platform.width <= stage.stageWidth && resultPosition >= 0)
+			if (resultPosition + platform.width <= platform.stage.stageWidth && resultPosition >= 0)
 			{
 				platform.x = resultPosition;
 			}

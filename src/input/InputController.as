@@ -7,6 +7,9 @@ package input
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.utils.Dictionary;
+	import input.events.InputControllerEvent;
+	import input.events.InputEvent;
+	import input.events.InputEventState;
 	
 	/**
 	 * Singleton class that handles axis to key bidings
@@ -15,23 +18,32 @@ package input
 	 */
 	public class InputController extends EventDispatcher
 	{
-		private static var _instance:InputController;
-		private var _inputSource:IEventDispatcher;
-		private var _keyBindings:Dictionary;
-		private var _mouse:Object = {x: undefined, y: undefined};
+		public static const INPUT_PROCESSED:String = "inputProcessed";
 		
-		public function InputController(inputSource:IEventDispatcher)
+		private static var _instance:InputController;
+		private var _stage:Stage;
+		private var _keys:Dictionary;
+		private var _mouse:Mouse;
+		private var _inputEventsQueue:Vector.<InputEvent>;
+		private var _inputEventsBuffer:Vector.<InputEvent>;
+		
+		public function InputController(stage:Stage)
 		{
 			if (!_instance)
 			{
 				fullFillKeyBindings();
 				_instance = this;
-				_inputSource = inputSource;
+				_stage = stage;
+				_inputEventsQueue = new Vector.<InputEvent>();
+				_inputEventsBuffer = new Vector.<InputEvent>();
+				_mouse = new Mouse(_stage.mouseX, _stage.mouseY);
 				
 				// Subscribing to events //
-				_inputSource.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDownEventHandler);
-				_inputSource.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMoveEventHandler);
-				_inputSource.addEventListener(Event.ENTER_FRAME, onEnterFramEventHandler);
+				_stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDownEventHandler);
+				_stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUpEventHandler);
+				_stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMoveEventHandler);
+				_stage.addEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
+				_mouse.addEventListener(Mouse.MOUSE_STOP, onMouseStopEventHandler);
 			}
 			else
 			{
@@ -41,18 +53,18 @@ package input
 		
 		private function fullFillKeyBindings():void
 		{
-			_keyBindings = new Dictionary();
-			_keyBindings[65] = InputEvent.A_KEY_DOWN;
-			_keyBindings[68] = InputEvent.D_KEY_DOWN;
+			_keys = new Dictionary();
+			_keys[65] = InputEvent.A_KEY;
+			_keys[68] = InputEvent.D_KEY;
 		}
 		
-		public static function getInstance(inputSource:IEventDispatcher = null):InputController
+		public static function getInstance(stage:Stage = null):InputController
 		{
 			if (!_instance)
 			{
-				if (inputSource)
+				if (stage)
 				{
-					_instance = new InputController(inputSource);
+					_instance = new InputController(stage);
 				}
 				else
 				{
@@ -63,53 +75,127 @@ package input
 			return _instance;
 		}
 		
-		// Event handlers //
-		private function onEnterFramEventHandler(e:Event):void 
+		// Input events queue methods //
+		private function setPushed(event:String):void
 		{
-			trace("ENTER_FRAME event polled");
+			for (var i:int = 0; i < _inputEventsQueue.length; i++)
+			{
+				if (_inputEventsQueue[i].type == event)
+				{
+					return;
+				}
+			}
+			
+			_inputEventsQueue.push(new InputEvent(event, InputEventState.PUSHED));
+		}
+		
+		private function setHandled(event:String):void
+		{
+			for (var i:int = 0; i < _inputEventsQueue.length; i++)
+			{
+				if (_inputEventsQueue[i].type == event)
+				{
+					_inputEventsQueue[i].state = InputEventState.HANDLED;
+					
+					return;
+				}
+			}
+		}
+		
+		private function pollEvents():void
+		{
+			while (_inputEventsQueue.length != 0)
+			{
+				var event:InputEvent = _inputEventsQueue.shift();
+				dispatchEvent(event);
+				
+				if (event.state == InputEventState.PUSHED)
+				{
+					event.state = InputEventState.REPEAT;
+				}
+				
+				if (event.state == InputEventState.REPEAT)
+				{
+					_inputEventsBuffer.push(event);
+				}
+			}
+		}
+		
+		private function swapBuffers():void
+		{
+			for (var i:int = 0; i < _inputEventsBuffer.length; i++ )
+			{
+				_inputEventsQueue.push(_inputEventsBuffer[i]);
+			}
+			
+			if (_inputEventsBuffer.length > 0)
+			{
+				_inputEventsBuffer = new Vector.<InputEvent>();
+			}
+		}
+		
+		// Event handlers //
+		private function onEnterFrameEventHandler(e:Event):void 
+		{
+			_mouse.pollEvents();
+			pollEvents();
+			swapBuffers();
+			
+			dispatchEvent(new InputControllerEvent(INPUT_PROCESSED));
 		}
 		
 		private function onKeyDownEventHandler(e:KeyboardEvent):void
 		{
-			trace("KEY_DOWN event polled");
-			
-			if (_keyBindings[e.keyCode] !== undefined)
+			if (_keys[e.keyCode] !== undefined)
 			{
-				dispatchEvent(new InputEvent(_keyBindings[e.keyCode]));
+				setPushed(_keys[e.keyCode]);
+			}
+		}
+		
+		private function onKeyUpEventHandler(e:KeyboardEvent):void 
+		{
+			if (_keys[e.keyCode] !== undefined)
+			{
+				setHandled(_keys[e.keyCode]);
 			}
 		}
 		
 		private function onMouseMoveEventHandler(e:MouseEvent):void
 		{
-			if (_mouse.x === undefined)
+			_mouse.newX = e.localX;
+			_mouse.newY = e.localY;
+			
+			if (_mouse.x < _mouse.newX)
 			{
-				_mouse.x = e.localX;
+				setPushed(InputEvent.MOUSE_AXIS_X_POSITIVE);
 			}
-			if (_mouse.y === undefined)
+			else if (_mouse.x > _mouse.newX)
 			{
-				_mouse.y = e.localY;
+				setPushed(InputEvent.MOUSE_AXIS_X_NEGATIVE);
 			}
 			
-			if (e.localX < _mouse.x)
+			if (_mouse.y < _mouse.newY)
 			{
-				_mouse.x = e.localX;
-				dispatchEvent(new InputEvent(InputEvent.MOUSE_AXIS_X_NEGATIVE));
+				setPushed(InputEvent.MOUSE_AXIS_Y_POSITIVE);
 			}
-			else if (e.localX > _mouse.x)
+			else if (_mouse.y > _mouse.newY)
 			{
-				_mouse.x = e.localX;
-				dispatchEvent(new InputEvent(InputEvent.MOUSE_AXIS_X_POSITIVE));
+				setPushed(InputEvent.MOUSE_AXIS_Y_NEGATIVE);
+			}
+		}
+		
+		private function onMouseStopEventHandler(e:MouseEvent):void
+		{
+			if (_mouse.x == _mouse.newX)
+			{
+				setHandled(InputEvent.MOUSE_AXIS_X_POSITIVE);
+				setHandled(InputEvent.MOUSE_AXIS_X_NEGATIVE);
 			}
 			
-			if (e.localY < _mouse.y)
+			if (_mouse.y == _mouse.newY)
 			{
-				_mouse.y = e.localY;
-				dispatchEvent(new InputEvent(InputEvent.MOUSE_AXIS_Y_POSITIVE));
-			}
-			else if (e.localY > _mouse.y)
-			{
-				_mouse.y = e.localY;
-				dispatchEvent(new InputEvent(InputEvent.MOUSE_AXIS_Y_NEGATIVE));
+				setHandled(InputEvent.MOUSE_AXIS_Y_POSITIVE);
+				setHandled(InputEvent.MOUSE_AXIS_Y_NEGATIVE);
 			}
 		}
 	

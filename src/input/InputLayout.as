@@ -1,5 +1,6 @@
 package input
 {
+	import input.events.AxisEvent;
 	import mx.utils.StringUtil;
 	
 	/**
@@ -44,9 +45,9 @@ package input
 		 */
 		public function createAxis(name:String, axisLowerBound:Number = -1, axisUpperBound:Number = 1):AxisBinding
 		{
-			for each(var axis:AxisBinding in _axisBindings)
+			for (var i:int = 0; i < _axisBindings.length; i++)
 			{
-				if (axis.name == name)
+				if (_axisBindings[i].name == name)
 				{
 					throw new Error("Axis with given name already exists!");
 				}
@@ -64,11 +65,11 @@ package input
 		 */
 		public function getAxis(name:String):AxisBinding
 		{
-			for each(var axis:AxisBinding in _axisBindings)
+			for (var i:int = 0; i < _axisBindings.length; i++)
 			{
-				if (axis.name == name)
+				if (_axisBindings[i].name == name)
 				{
-					return axis;
+					return _axisBindings[i];
 				}
 			}
 			
@@ -77,12 +78,12 @@ package input
 		
 		public function deleteAxis(name:String):void
 		{
-			for (var index:int in _axisBindings)
+			for (var i:int = 0; i < _axisBindings.length; i++)
 			{
-				if (_axisBindings[index].name == name)
+				if (_axisBindings[i].name == name)
 				{
-					_axisBindings[index].dispose();
-					_axisBindings.removeAt(index);
+					_axisBindings[i].dispose();
+					_axisBindings.removeAt(i);
 					break;
 				}
 			}
@@ -92,11 +93,11 @@ package input
 		{
 			var binded:Boolean = false;
 			
-			for each(var axis:AxisBinding in _axisBindings)
+			for (var i:int = 0; i < _axisBindings.length; i++)
 			{
-				if (axis.name == name)
+				if (_axisBindings[i].name == name)
 				{
-					axis.addEventListener(AxisEvent.AXIS_ALTERED, callback);
+					_axisBindings[i].addEventListener(AxisEvent.AXIS_ALTERED, callback);
 					binded = true;
 					break;
 				}
@@ -112,11 +113,11 @@ package input
 		
 		public function unbindAxis(name:String, callback:Function):InputLayout
 		{
-			for each(var axis:AxisBinding in _axisBindings)
+			for (var i:int = 0; i < _axisBindings.length; i++)
 			{
-				if (axis.name == name)
+				if (_axisBindings[i].name == name)
 				{
-					axis.removeEventListener(AxisEvent.AXIS_ALTERED, callback);
+					_axisBindings[i].removeEventListener(AxisEvent.AXIS_ALTERED, callback);
 					break;
 				}
 			}
