@@ -1,7 +1,8 @@
-package actors.models 
+package actors 
 {
 	import actors.ActorsManager;
 	import flash.display.Sprite;
+	import flash.display.Stage;
 	import interfaces.IDisposable;
 	import interfaces.IRenderable;
 	import mx.utils.NameUtil;
@@ -18,7 +19,7 @@ package actors.models
 		private var _color:uint;
 		private var _disposed:Boolean;
 		
-		public function Brick(width:Number, height:Number, color:uint, x:Number = 0, y:Number = 0, name:String = null) 
+		public function Brick(stage:Stage, width:Number, height:Number, color:uint, x:Number = 0, y:Number = 0, name:String = null) 
 		{
 			this.width = width;
 			this.height = height;
@@ -28,6 +29,7 @@ package actors.models
 			this.name = name ? name : NameUtil.createUniqueName(this);
 			_disposed = false;
 			
+			stage.addChild(this);
 			render();
 		}
 		

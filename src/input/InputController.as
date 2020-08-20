@@ -107,7 +107,11 @@ package input
 			while (_inputEventsQueue.length != 0)
 			{
 				var event:InputEvent = _inputEventsQueue.shift();
-				dispatchEvent(event);
+				
+				if (event.state != InputEventState.REPEAT)
+				{
+					dispatchEvent(event);
+				}
 				
 				if (event.state == InputEventState.PUSHED)
 				{

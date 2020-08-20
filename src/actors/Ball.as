@@ -1,8 +1,8 @@
-package actors.models 
+package actors 
 {
 	import actors.ActorsManager;
-	import actors.controllers.BallController;
 	import flash.display.Sprite;
+	import flash.display.Stage;
 	import flash.events.Event;
 	import interfaces.IDisposable;
 	import interfaces.IRenderable;
@@ -20,7 +20,7 @@ package actors.models
 		private var _color:uint;
 		private var _disposed:Boolean;
 		
-		public function Ball(radius:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null) 
+		public function Ball(stage:Stage, radius:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null) 
 		{
 			_radius = radius;
 			_speed = speed;
@@ -29,6 +29,10 @@ package actors.models
 			this.y = y;
 			this.name = name ? name : NameUtil.createUniqueName(this);
 			_disposed = false;
+			
+			// Subscribe to events //
+			stage.addChild(this);
+			stage.addEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
 			
 			render();
 		}
@@ -62,7 +66,7 @@ package actors.models
 		// Event handlers //
 		public function onEnterFrameEventHandler(event:Event):void
 		{
-			BallController.Move(this);
+			// TODO: Move
 		}
 		
 		/* INTERFACE interfaces.IDisposable */
@@ -72,7 +76,10 @@ package actors.models
 			if (!_disposed)
 			{
 				ActorsManager.removeObject(this);
-				BallController.deactivate(this);
+				
+				// Unsubscribe from events //
+				stage.removeEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
+				
 				_disposed = true;
 			}
 		}

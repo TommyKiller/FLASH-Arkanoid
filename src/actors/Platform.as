@@ -1,9 +1,10 @@
-package actors.models
+package actors
 {
 	import actors.ActorsManager;
-	import actors.controllers.PlatformController;
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.display.Stage;
+	import input.InputLayout;
 	import input.events.AxisEvent;
 	import interfaces.IDisposable;
 	import interfaces.IRenderable;
@@ -21,7 +22,7 @@ package actors.models
 		private var _color:uint;
 		private var _disposed:Boolean;
 		
-		public function Platform(width:Number, height:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null)
+		public function Platform(stage:Stage, width:Number, height:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null)
 		{
 			this.width = width;
 			this.height = height;
@@ -31,6 +32,10 @@ package actors.models
 			this.y = y;
 			this.name = name ? name : NameUtil.createUniqueName(this);
 			_disposed = false;
+			
+			// Subscribe to events //
+			stage.addChild(this);
+			InputLayout.getInstance().bindAxis("MoveRightAxis", onMoveRightEventHandler);
 			
 			render();
 		}
@@ -79,7 +84,12 @@ package actors.models
 		// Event handlers //
 		public function onMoveRightEventHandler(event:AxisEvent):void
 		{
-			PlatformController.MoveRight(this, event.result.axisValue);
+			var resultPosition:Number = x + event.result.axisValue * speed;
+			
+			if (resultPosition + width <= stage.stageWidth && resultPosition >= 0)
+			{
+				x = resultPosition;
+			}
 		}
 		
 		/* INTERFACE interfaces.IDisposable */
@@ -89,7 +99,10 @@ package actors.models
 			if (!_disposed)
 			{
 				ActorsManager.removeObject(this);
-				PlatformController.deactivate(this);
+				
+				// Unsubscribe to events //
+				InputLayout.getInstance().unbindAxis("MoveRightAxis", onMoveRightEventHandler);
+				
 				_disposed = true;
 			}
 		}
