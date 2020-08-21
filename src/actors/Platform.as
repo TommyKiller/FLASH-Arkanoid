@@ -4,11 +4,13 @@ package actors
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.display.Stage;
+	import flash.events.Event;
 	import input.InputLayout;
 	import input.events.AxisEvent;
 	import interfaces.IDisposable;
 	import interfaces.IRenderable;
 	import mx.utils.NameUtil
+	import physics.Vector2D;
 	
 	/**
 	 * ...
@@ -21,8 +23,10 @@ package actors
 		private var _speed:uint;
 		private var _color:uint;
 		private var _disposed:Boolean;
+		private var _friction:Number;
+		private var _velocity:Vector2D;
 		
-		public function Platform(stage:Stage, width:Number, height:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null)
+		public function Platform(width:Number, height:Number, speed:uint, color:uint, friction:Number, x:Number = 0, y:Number = 0, name:String = null)
 		{
 			this.width = width;
 			this.height = height;
@@ -30,13 +34,19 @@ package actors
 			_color = color;
 			this.x = x;
 			this.y = y;
+			this.friction = friction;
 			this.name = name ? name : NameUtil.createUniqueName(this);
 			_disposed = false;
+			_velocity = new Vector2D();
 			
-			// Subscribe to events //
-			stage.addChild(this);
-			InputLayout.getInstance().bindAxis("MoveRightAxis", onMoveRightEventHandler);
-			
+			if (stage) init();
+			else addEventListener(Event.ADDED_TO_STAGE, init);
+		}
+		
+		private function init(e:Event = null):void
+		{
+			removeEventListener(Event.ADDED_TO_STAGE, init);
+			InputLayout.getInstance().bindAxis("MoveRightAxis", onMoveRightEventHandler, onAxisAlteredEventHandler);
 			render();
 		}
 		
@@ -81,15 +91,37 @@ package actors
 			_height = value;
 		}
 		
-		// Event handlers //
-		public function onMoveRightEventHandler(event:AxisEvent):void
+		public function get friction():Number
 		{
-			var resultPosition:Number = x + event.result.axisValue * speed;
-			
-			if (resultPosition + width <= stage.stageWidth && resultPosition >= 0)
+			return _friction;
+		}
+		
+		public function set friction(value:Number):void
+		{
+			if (value < 0 || value > 1)
 			{
-				x = resultPosition;
+				throw new Error("Friction of the platform must be between 0 and 1.");
 			}
+			
+			_friction = value;
+		}
+		
+		public function get velocity():Vector2D
+		{
+			return _velocity;
+		}
+		
+		// Event handlers //
+		private function onMoveRightEventHandler(event:AxisEvent):void
+		{
+			var newX:Number = x + event.result.axisValue * speed;
+			
+			x = Math.max(0, Math.min(newX + width, stage.stageWidth) - width);
+		}
+		
+		private function onAxisAlteredEventHandler(event:AxisEvent):void
+		{
+			_velocity.x = event.result.axisValue;
 		}
 		
 		/* INTERFACE interfaces.IDisposable */
@@ -98,10 +130,9 @@ package actors
 		{
 			if (!_disposed)
 			{
+				// Unsubscribe from events //
+				InputLayout.getInstance().unbindAxis("MoveRightAxis", onMoveRightEventHandler, onAxisAlteredEventHandler);
 				ActorsManager.removeObject(this);
-				
-				// Unsubscribe to events //
-				InputLayout.getInstance().unbindAxis("MoveRightAxis", onMoveRightEventHandler);
 				
 				_disposed = true;
 			}

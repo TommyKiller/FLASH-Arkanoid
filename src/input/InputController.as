@@ -166,8 +166,8 @@ package input
 		
 		private function onMouseMoveEventHandler(e:MouseEvent):void
 		{
-			_mouse.newX = e.localX;
-			_mouse.newY = e.localY;
+			_mouse.newX = e.movementX;
+			_mouse.newY = e.movementX;
 			
 			if (_mouse.x < _mouse.newX)
 			{

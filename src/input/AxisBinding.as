@@ -38,7 +38,7 @@ package input
 			{
 				if (_axisValue != 0)
 				{
-					dispatchEvent(new AxisEvent(AxisEvent.AXIS_ALTERED, new AxisEventResult(_axisValue)));
+					dispatchEvent(new AxisEvent(AxisEvent.AXIS_POLLED, new AxisEventResult(_axisValue)));
 				}
 			};
 			InputController.getInstance().addEventListener(InputController.INPUT_PROCESSED, _bindings[InputController.INPUT_PROCESSED]);
@@ -59,6 +59,8 @@ package input
 		public function set axisValue(value:Number):void
 		{
 			_axisValue = Math.max(lowerBound, Math.min(value, upperBound));
+			
+			dispatchEvent(new AxisEvent(AxisEvent.AXIS_ALTERED, new AxisEventResult(_axisValue)));
 		}
 		
 		public function get lowerBound():Number

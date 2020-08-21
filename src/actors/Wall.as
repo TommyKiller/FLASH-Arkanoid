@@ -1,8 +1,6 @@
 package actors 
 {
-	import actors.ActorsManager;
-	import flash.display.Sprite;
-	import flash.display.Stage;
+	import flash.display.Shape;
 	import flash.events.Event;
 	import interfaces.IDisposable;
 	import interfaces.IRenderable;
@@ -12,7 +10,7 @@ package actors
 	 * ...
 	 * @author Tommy
 	 */
-	public class Brick extends Sprite implements IDisposable, IRenderable
+	public class Wall extends Shape implements IDisposable, IRenderable
 	{
 		
 		private var _width:Number;
@@ -20,7 +18,7 @@ package actors
 		private var _color:uint;
 		private var _disposed:Boolean;
 		
-		public function Brick(width:Number, height:Number, color:uint, x:Number = 0, y:Number = 0, name:String = null) 
+		public function Wall(width:Number, height:Number, color:uint, x:Number = 0, y:Number = 0, name:String = null) 
 		{
 			this.width = width;
 			this.height = height;
@@ -55,7 +53,7 @@ package actors
 		{
 			if (value <= 0)
 			{
-				throw new Error("Width of the brick must be greater than 0.");
+				throw new Error("Width of the wall must be greater than 0.");
 			}
 			
 			_width = value;
@@ -70,7 +68,7 @@ package actors
 		{
 			if (value <= 0)
 			{
-				throw new Error("Height of the brick must be greater than 0.");
+				throw new Error("Height of the wall must be greater than 0.");
 			}
 			
 			_height = value;
@@ -78,7 +76,7 @@ package actors
 		
 		/* INTERFACE interfaces.IDisposable */
 		
-		public function dispose():void
+		public function dispose():void 
 		{
 			if (!_disposed)
 			{
@@ -89,7 +87,7 @@ package actors
 		
 		/* INTERFACE interfaces.IRenderable */
 		
-		public function render():void
+		public function render():void 
 		{
 			graphics.beginFill(color);
 			graphics.drawRect(0, 0, width, height);

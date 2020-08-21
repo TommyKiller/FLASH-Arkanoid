@@ -1,6 +1,7 @@
 package input
 {
 	import input.events.AxisEvent;
+	import input.events.InputEvent;
 	import mx.utils.StringUtil;
 	
 	/**
@@ -34,6 +35,12 @@ package input
 			}
 			
 			return _instance;
+		}
+		
+		public function loadLayout():void
+		{
+			InputLayout.getInstance().createAxis("MoveRightAxis").bindTo(InputEvent.A_KEY, -1).bindTo(InputEvent.D_KEY, 1);
+			//InputLayout.getInstance().getAxis("MoveRightAxis").bindTo(InputEvent.MOUSE_AXIS_X_NEGATIVE, -1).bindTo(InputEvent.MOUSE_AXIS_X_POSITIVE, 1);
 		}
 		
 		/**
@@ -89,7 +96,7 @@ package input
 			}
 		}
 		
-		public function bindAxis(name:String, callback:Function):InputLayout
+		public function bindAxis(name:String, callbackPolled:Function, callbackAltered:Function = null):InputLayout
 		{
 			var binded:Boolean = false;
 			
@@ -97,7 +104,11 @@ package input
 			{
 				if (_axisBindings[i].name == name)
 				{
-					_axisBindings[i].addEventListener(AxisEvent.AXIS_ALTERED, callback);
+					_axisBindings[i].addEventListener(AxisEvent.AXIS_POLLED, callbackPolled);
+					if (callbackAltered)
+					{
+						_axisBindings[i].addEventListener(AxisEvent.AXIS_ALTERED, callbackAltered);
+					}
 					binded = true;
 					break;
 				}
@@ -111,13 +122,17 @@ package input
 			return this;
 		}
 		
-		public function unbindAxis(name:String, callback:Function):InputLayout
+		public function unbindAxis(name:String, callbackPolled:Function, callbackAltered:Function = null):InputLayout
 		{
 			for (var i:int = 0; i < _axisBindings.length; i++)
 			{
 				if (_axisBindings[i].name == name)
 				{
-					_axisBindings[i].removeEventListener(AxisEvent.AXIS_ALTERED, callback);
+					_axisBindings[i].removeEventListener(AxisEvent.AXIS_POLLED, callbackPolled);
+					if (callbackAltered)
+					{
+						_axisBindings[i].removeEventListener(AxisEvent.AXIS_ALTERED, callbackAltered);
+					}
 					break;
 				}
 			}
