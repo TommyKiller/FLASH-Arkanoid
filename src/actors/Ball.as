@@ -1,9 +1,12 @@
-package actors 
+package actors
 {
 	import actors.ActorsManager;
+	import actors.events.ActorEvent;
 	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.events.Event;
+	import input.InputLayout;
+	import input.events.ActionEvent;
 	import interfaces.IDisposable;
 	import interfaces.IRenderable;
 	import mx.utils.NameUtil;
@@ -17,13 +20,16 @@ package actors
 	public class Ball extends Sprite implements IDisposable, IRenderable
 	{
 		
+		public static const BALL_DESTROYED:String = "ballDestroyed";
+		
 		private var _radius:Number;
 		private var _speed:uint;
 		private var _color:uint;
 		private var _disposed:Boolean;
 		private var _velocity:Vector2D;
+		private var _platform:Platform;
 		
-		public function Ball(radius:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null) 
+		public function Ball(radius:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null)
 		{
 			_radius = radius;
 			_speed = speed;
@@ -41,7 +47,6 @@ package actors
 		private function init(e:Event = null):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			stage.addEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
 			render();
 		}
 		
@@ -49,6 +54,11 @@ package actors
 		public function get speed():Number
 		{
 			return _speed;
+		}
+		
+		public function set speed(value:Number):void
+		{
+			_speed = value;
 		}
 		
 		public function get color():uint
@@ -81,42 +91,45 @@ package actors
 			
 			var collisions:Array = CollisionManager.getInstance().checkCollisions(this);
 			
-			for (var i:int = 0; i < collisions.length; i++)
+			if (collisions)
 			{
-				var brick:Brick = collisions[i].object2 as Brick;
-				if (brick)
+				for (var i:int = 0; i < collisions.length; i++)
 				{
-					brick.dispose();
-				}
-				else if (this !== collisions[i].object1)
-				{
-					brick = collisions[i].object1 as Brick;
-					
+					var brick:Brick = collisions[i].object2 as Brick;
 					if (brick)
 					{
-						brick.dispose();
+						brick.hit();
 					}
-				}
-				
-				var angle:Number = Math.PI - collisions[i].angle;
-				_velocity.rotate(angle);
-				
-				/*var platform:Platform = collisions[i].object2 as Platform;
-				if (platform)
-				{
-					_velocity.x += platform.friction * platform.velocity.x;
-				}
-				else if (this !== collisions[i].object1)
-				{
-					platform = collisions[i].object1 as Platform;
-					
-					if (platform)
+					else if (this !== collisions[i].object1)
 					{
-						_velocity.x += platform.friction * platform.velocity.x;
+						brick = collisions[i].object1 as Brick;
+						
+						if (brick)
+						{
+							brick.hit();
+						}
 					}
-				}*/
-				
-				_velocity.unit();
+					
+					var angle:Number = Math.PI - collisions[i].angle;
+					_velocity.rotate(angle);
+					
+					/*var platform:Platform = collisions[i].object2 as Platform;
+					   if (platform)
+					   {
+					   _velocity.x += platform.friction * platform.velocity.x;
+					   }
+					   else if (this !== collisions[i].object1)
+					   {
+					   platform = collisions[i].object1 as Platform;
+					
+					   if (platform)
+					   {
+					   _velocity.x += platform.friction * platform.velocity.x;
+					   }
+					   }*/
+					
+					_velocity.unit();
+				}
 			}
 			
 			x = oldX + _velocity.x * speed;
@@ -124,8 +137,33 @@ package actors
 			
 			if (y > stage.stageHeight)
 			{
+				dispatchEvent(new ActorEvent(BALL_DESTROYED, this));
+				
 				dispose();
 			}
+		}
+		
+		private function onPlatformMovedEventHandler(event:ActorEvent):void
+		{
+			var platform:Platform = event.actor as Platform;
+			x += platform.speed * platform.velocity.x;
+		}
+		
+		private function startBouncing(event:ActionEvent):void
+		{
+			InputLayout.getInstance().getAction("ThrowBall").removeEventListener(ActionEvent.ACTION_KEY_DOWN, startBouncing);
+			_platform.removeEventListener(Platform.PLATFORM_MOVED, onPlatformMovedEventHandler);
+			stage.addEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
+		}
+		
+		public function stickToPlatform(platform:Platform):void
+		{
+			_platform = platform;
+			platform.addEventListener(Platform.PLATFORM_MOVED, onPlatformMovedEventHandler);
+			x = platform.x + platform.width / 2 - radius;
+			y = platform.y - radius;
+			
+			InputLayout.getInstance().getAction("ThrowBall").addEventListener(ActionEvent.ACTION_KEY_DOWN, startBouncing);
 		}
 		
 		/* INTERFACE interfaces.IDisposable */
@@ -134,7 +172,6 @@ package actors
 		{
 			if (!_disposed)
 			{
-				// Unsubscribe from events //
 				stage.removeEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
 				ActorsManager.removeObject(this);
 				
@@ -146,11 +183,12 @@ package actors
 		
 		public function render():void
 		{
+			graphics.clear();
 			graphics.beginFill(color);
 			graphics.drawCircle(0, 0, radius);
 			graphics.endFill();
 		}
-		
+	
 	}
 
 }

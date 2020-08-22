@@ -27,7 +27,10 @@ package actors
 		{
 			var platform:Platform = new Platform(width, height, speed, color, friction, x, y, name);
 			_stage.addChild(platform);
-			CollisionManager.getInstance().addItem(platform);
+			if (collision)
+			{
+				CollisionManager.getInstance().addItem(platform);
+			}
 			_eventDispatcher.dispatchEvent(new ActorEvent(ActorEvent.ACTOR_SPAWNED, platform));
 			
 			return platform;
@@ -37,17 +40,23 @@ package actors
 		{
 			var ball:Ball = new Ball(radius, speed, color, x, y, name);
 			_stage.addChild(ball);
-			CollisionManager.getInstance().addItem(ball);
+			if (collision)
+			{
+				CollisionManager.getInstance().addItem(ball);
+			}
 			_eventDispatcher.dispatchEvent(new ActorEvent(ActorEvent.ACTOR_SPAWNED, ball));
 			
 			return ball;
 		}
 		
-		public static function createBrick(width:Number, height:Number, color:uint, x:Number = 0, y:Number = 0, collision:Boolean = true, name:String = null):Brick
+		public static function createBrick(width:Number, height:Number, health:uint, colors:Vector.<uint>, x:Number = 0, y:Number = 0, collision:Boolean = true, name:String = null):Brick
 		{
-			var brick:Brick = new Brick(width, height, color, x, y, name);
+			var brick:Brick = new Brick(width, height, health, colors, x, y, name);
 			_stage.addChild(brick);
-			CollisionManager.getInstance().addItem(brick);
+			if (collision)
+			{
+				CollisionManager.getInstance().addItem(brick);
+			}
 			_eventDispatcher.dispatchEvent(new ActorEvent(ActorEvent.ACTOR_SPAWNED, brick));
 			
 			return brick;
@@ -57,7 +66,10 @@ package actors
 		{
 			var wall:Wall = new Wall(width, height, color, x, y, name);
 			_stage.addChild(wall);
-			CollisionManager.getInstance().addItem(wall);
+			if (collision)
+			{
+				CollisionManager.getInstance().addItem(wall);
+			}
 			_eventDispatcher.dispatchEvent(new ActorEvent(ActorEvent.ACTOR_SPAWNED, wall));
 			
 			return wall;
@@ -68,6 +80,11 @@ package actors
 			_stage.removeChild(object);
 			CollisionManager.getInstance().removeItem(object);
 			_eventDispatcher.dispatchEvent(new ActorEvent(ActorEvent.ACTOR_DISPOSED, object));
+		}
+		
+		public static function getActor(name:String):DisplayObject
+		{
+			return _stage.getChildByName(name);
 		}
 		
 		public static function addEventListener(type:String, listener:Function):void

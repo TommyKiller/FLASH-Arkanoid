@@ -1,6 +1,7 @@
 package actors 
 {
 	import actors.ActorsManager;
+	import actors.events.ActorEvent;
 	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.events.Event;
@@ -15,16 +16,21 @@ package actors
 	public class Brick extends Sprite implements IDisposable, IRenderable
 	{
 		
+		public static const BRICK_HIT:String = "brickHit";
+		public static const BRICK_DESTROYED:String = "brickDestroyed";
+		
 		private var _width:Number;
 		private var _height:Number;
-		private var _color:uint;
 		private var _disposed:Boolean;
+		private var _health:uint
+		private var _colors:Vector.<uint>;
 		
-		public function Brick(width:Number, height:Number, color:uint, x:Number = 0, y:Number = 0, name:String = null) 
+		public function Brick(width:Number, height:Number, health:uint, colors:Vector.<uint>, x:Number = 0, y:Number = 0, name:String = null) 
 		{
 			this.width = width;
 			this.height = height;
-			_color = color;
+			_health = health;
+			_colors = colors;
 			this.x = x;
 			this.y = y;
 			this.name = name ? name : NameUtil.createUniqueName(this);
@@ -40,10 +46,38 @@ package actors
 			render();
 		}
 		
-		// Get/set methods //		
-		public function get color():uint
+		public function hit():void
 		{
-			return _color;
+			health -= 1;
+		}
+		
+		// Get/set methods //
+		public function get health():uint
+		{
+			return _health;
+		}
+		
+		public function set health(value:uint):void
+		{
+			_health = value;
+			
+			if (_health <= 0)
+			{
+				dispatchEvent(new ActorEvent(BRICK_DESTROYED, this));
+				
+				dispose();
+			}
+			else
+			{
+				dispatchEvent(new ActorEvent(BRICK_HIT, this));
+				
+				render();
+			}
+		}
+		
+		public function get color():Vector.<uint>
+		{
+			return _colors;
 		}
 		
 		public override function get width():Number
@@ -81,8 +115,9 @@ package actors
 		public function dispose():void
 		{
 			if (!_disposed)
-			{
+			{				
 				ActorsManager.removeObject(this);
+				
 				_disposed = true;
 			}
 		}
@@ -91,7 +126,8 @@ package actors
 		
 		public function render():void
 		{
-			graphics.beginFill(color);
+			graphics.clear();
+			graphics.beginFill(color[_health - 1]);
 			graphics.drawRect(0, 0, width, height);
 			graphics.endFill();
 		}

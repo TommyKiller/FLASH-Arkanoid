@@ -1,6 +1,7 @@
 package actors
 {
 	import actors.ActorsManager;
+	import actors.events.ActorEvent;
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.display.Stage;
@@ -18,6 +19,9 @@ package actors
 	 */
 	public class Platform extends Sprite implements IDisposable, IRenderable
 	{
+		
+		public static const PLATFORM_MOVED:String = "platformMoved";
+		
 		private var _width:Number;
 		private var _height:Number;
 		private var _speed:uint;
@@ -46,7 +50,8 @@ package actors
 		private function init(e:Event = null):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			InputLayout.getInstance().bindAxis("MoveRightAxis", onMoveRightEventHandler, onAxisAlteredEventHandler);
+			addEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
+			InputLayout.getInstance().bindAxis("MoveRightAxis", onMoveRightEventHandler);
 			render();
 		}
 		
@@ -112,14 +117,19 @@ package actors
 		}
 		
 		// Event handlers //
-		private function onMoveRightEventHandler(event:AxisEvent):void
+		private function onEnterFrameEventHandler(event:Event):void
 		{
-			var newX:Number = x + event.result.axisValue * speed;
+			var newX:Number = x + velocity.x * speed;
 			
-			x = Math.max(0, Math.min(newX + width, stage.stageWidth) - width);
+			if (newX >= 0 && newX + width <= stage.stageWidth)
+			{
+				x = newX;
+				
+				dispatchEvent(new ActorEvent(PLATFORM_MOVED, this));
+			}
 		}
 		
-		private function onAxisAlteredEventHandler(event:AxisEvent):void
+		private function onMoveRightEventHandler(event:AxisEvent):void
 		{
 			_velocity.x = event.result.axisValue;
 		}
@@ -131,7 +141,8 @@ package actors
 			if (!_disposed)
 			{
 				// Unsubscribe from events //
-				InputLayout.getInstance().unbindAxis("MoveRightAxis", onMoveRightEventHandler, onAxisAlteredEventHandler);
+				InputLayout.getInstance().unbindAxis("MoveRightAxis", onMoveRightEventHandler);
+				removeEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
 				ActorsManager.removeObject(this);
 				
 				_disposed = true;
@@ -142,6 +153,7 @@ package actors
 		
 		public function render():void
 		{
+			graphics.clear();
 			graphics.beginFill(color);
 			graphics.drawRect(0, 0, width, height);
 			graphics.endFill();

@@ -24,6 +24,7 @@ package input
 		private var _lowerBound:Number;
 		private var _upperBound:Number;
 		private var _disposed:Boolean;
+		private var _handled:Boolean;
 		private var _bindings:Dictionary;
 		
 		public function AxisBinding(name:String, lowerBound:Number = -1, upperBound:Number = 1)
@@ -33,12 +34,15 @@ package input
 			_lowerBound = lowerBound;
 			_upperBound = upperBound
 			_disposed = false;
+			_handled = true;
 			_bindings = new Dictionary();
 			_bindings[InputController.INPUT_PROCESSED] = function(e:InputControllerEvent):void
 			{
-				if (_axisValue != 0)
+				if (!_handled)
 				{
-					dispatchEvent(new AxisEvent(AxisEvent.AXIS_POLLED, new AxisEventResult(_axisValue)));
+					dispatchEvent(new AxisEvent(AxisEvent.AXIS_ALTERED, new AxisEventResult(_axisValue)));
+					
+					_handled = true;
 				}
 			};
 			InputController.getInstance().addEventListener(InputController.INPUT_PROCESSED, _bindings[InputController.INPUT_PROCESSED]);
@@ -58,9 +62,9 @@ package input
 		// Should be private //
 		public function set axisValue(value:Number):void
 		{
-			_axisValue = Math.max(lowerBound, Math.min(value, upperBound));
+			_handled = false;
 			
-			dispatchEvent(new AxisEvent(AxisEvent.AXIS_ALTERED, new AxisEventResult(_axisValue)));
+			_axisValue = Math.max(lowerBound, Math.min(value, upperBound));
 		}
 		
 		public function get lowerBound():Number
@@ -102,19 +106,35 @@ package input
 		{
 			_bindings[event] = function(event:InputEvent):void
 			{
-				if (event.state == InputEventState.PUSHED)
+				if (event.state == InputEventState.PUSHED || event.state == InputEventState.REPEAT)
 				{
 					axisValue += scale;
 				}
 				else if (event.state == InputEventState.HANDLED)
 				{
-					axisValue -= scale;
+					axisValue = 0;
 				}
 			};
 			InputController.getInstance().addEventListener(event, _bindings[event]);
 			
 			return this;
 		}
+		
+		public function unbind(event:String):AxisBinding
+		{
+			if (_bindings[event] !== undefined)
+			{
+				InputController.getInstance().removeEventListener(event, _bindings[event]);
+				
+				return _bindings[event];
+			}
+			else
+			{
+				throw new Error("Such a binding does not exist.");
+			}
+		}
+		
+		/* INTERFACE interfaces.IDisposable */
 		
 		public function dispose():void
 		{

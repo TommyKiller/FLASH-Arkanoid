@@ -10,7 +10,6 @@ package input.events
 	public class AxisEvent extends Event 
 	{
 		
-		public static const AXIS_POLLED:String = "axisPolled";
 		public static const AXIS_ALTERED:String = "axisAltered";
 		
 		public var result:AxisEventResult;

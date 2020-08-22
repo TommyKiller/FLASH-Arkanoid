@@ -16,12 +16,15 @@ package
 	import flash.text.TextField;
 	import flash.text.TextFormatAlign;
 	import input.InputController;
+	import input.events.ActionEvent;
 	import input.events.InputEvent;
 	import input.InputLayout;
+	import levels.DemoLevel;
 	import menus.Button;
 	import menus.ButtonSprite;
 	import menus.ButtonSpriteText;
 	import menus.MenuManager;
+	import mx.utils.NameUtil;
 	
 	/**
 	 * ...
@@ -30,8 +33,15 @@ package
 	public class Game extends Sprite 
 	{
 		private static var _stage:Stage;
-		private static var _bricksCount:uint;
-		private static var _ballsCount:uint;
+		private static var _level:DemoLevel;
+		private static var _score:uint;
+		private static var _health:uint;
+		private static var _bricksDestroyed:uint;
+		private static var _healthBar:TextField;
+		private static var _scoreBar:TextField;
+		private static var _bricksDestroyedBar:TextField;
+		private static var _endGameLabel:TextField;
+		private static var _active:Boolean;
 		
 		public function Game() 
 		{
@@ -44,140 +54,149 @@ package
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// Setup game settings //
 			Game._stage = this.stage;
-			_bricksCount = 0;
-			_ballsCount = 0;
+			_active = false;
 			
 			// Components initialization //
 			InputController.getInstance(stage);
 			ActorsManager.initialize(stage);
-			ActorsManager.addEventListener(ActorEvent.ACTOR_SPAWNED,  onActorSpawnedEventHandler);
-			ActorsManager.addEventListener(ActorEvent.ACTOR_DISPOSED, onActorDisposedEventHandler);
 			MenuManager.initialize(stage);
+			InputLayout.getInstance().loadLayout();
 			
-			MenuManager.createMenu("Main Menu",
-				MenuManager.createButton(StartDemoLevel, "DEMO LEVEL", stage.stageWidth / 2 - 70, 200, 26, "Times New Roman", 0x0077FF),
-				MenuManager.createButton(Exit, "EXIT", stage.stageWidth / 2 - 20, 280, 26, "Times New Roman", 0x0077FF));
+			loadMenu();
 		}
 		
 		// Get/set methods //
-		private static function get bricksCount():uint
+		public static function get bricksDestroyed():uint
 		{
-			return _bricksCount;
+			return _bricksDestroyed;
 		}
 		
-		private static function set bricksCount(value:uint):void
+		public static function set bricksDestroyed(value:uint):void
 		{
-			_bricksCount = value;
+			_bricksDestroyed = value;
+			_bricksDestroyedBar.text = "Bricks destroyed: " + _bricksDestroyed.toString();
+		}
+		
+		public static function get score():uint
+		{
+			return _score;
+		}
+		
+		public static function set score(value:uint):void
+		{
+			_score = value;
+			_scoreBar.text = "Score: " + _score.toString();
+		}
+		
+		public static function get health():uint
+		{
+			return _health;
+		}
+		
+		public static function set health(value:uint):void
+		{
+			_health = value;
+			_healthBar.text = "Health: " + _health.toString();
 			
-			if (_bricksCount == 0)
+			if (_health == 0 && _active)
 			{
-				Victory();
+				defeat();
 			}
 		}
 		
-		private static function get ballsCount():uint
-		{
-			return _ballsCount;
-		}
-		
-		private static function set ballsCount(value:uint):void
-		{
-			_ballsCount = value;
-			
-			if (_ballsCount == 0)
-			{
-				GameOver();
-			}
-		}
-		
-		// Behaviour //
-		
-		public static function StartDemoLevel(event:MouseEvent = null):void
+		// Event handlers //		
+		private static function startDemoLevel(event:MouseEvent = null):void
 		{
 			MenuManager.removeMenu("Main Menu");
-			InputLayout.getInstance().loadLayout();
 			
-			ActorsManager.createWall(20, _stage.stageHeight, 0xFF00FF, -20, 0);
-			ActorsManager.createWall(20, _stage.stageHeight, 0xFF00FF, _stage.stageWidth, 0);
-			ActorsManager.createWall(_stage.stageWidth, 20, 0xFF00FF, 0, -20);
-			ActorsManager.createPlatform(200, 20, 25, 0xFD06AB, 0.5, _stage.stageWidth / 2 - 100, _stage.stageHeight - 20, "playerPlatform");
-			ActorsManager.createBall(10, 15, 0xA313D6, _stage.stageWidth / 2, _stage.stageHeight - 29);
-			for (var i:int = 0; i < 18; i++)
-			{
-				for (var j:int = 0; j < 10; j++)
-				{
-					ActorsManager.createBrick(50, 30, 0x000000, 25 + i * 70, 25 + j * 50);
-				}
-			}
+			_active = true;
+			_level = new DemoLevel(_stage);
+			_level.addEventListener(DemoLevel.LEVEL_CLEARED, victory);
+			_level.load();
+			var format:TextFormat = formatText(15, "Times New Roman", 0xFF55DD);
+			_healthBar = spawnTextField(_health.toString(), TextFieldAutoSize.LEFT, format, 0, 0, false, "healthBar");
+			_scoreBar = spawnTextField(_score.toString(), TextFieldAutoSize.LEFT, format, 70, 0, false, "scoreBar");
+			_bricksDestroyedBar = spawnTextField(_score.toString(), TextFieldAutoSize.LEFT, format, 150, 0, false, "bricksDestroyedBar");
+			health = 3;
+			score = 0;
+			bricksDestroyed = 0;
+			_level.start();
 		}
 		
-		private static function Victory():void
+		private static function backToMenu(event:ActionEvent = null):void
 		{
-			InputLayout.getInstance().deleteAxis("MoveRightAxis");
-			
-			var format:TextFormat = new flash.text.TextFormat();
-			format.size = 30;
-			format.font = "Times New Roman";
-			format.color = 0x00FF00;
-			format.bold = true;
-			format.align = TextFormatAlign.CENTER
-			var text:TextField = new TextField();
-			text.text = "YOU WIN!";
-			text.setTextFormat(format);
-			text.autoSize = TextFieldAutoSize.LEFT;
-			text.x = _stage.stageWidth / 2 - text.width / 2;
-			text.y = _stage.stageHeight / 2 - text.height / 2;
-			_stage.addChild(text);
+			removeTextFields();
+			_level.dispose();
+			InputLayout.getInstance().unbindAction("BackToMenu", ActionEvent.ACTION_KEY_DOWN, backToMenu);
+			loadMenu();
 		}
 		
-		private static function GameOver():void
-		{
-			InputLayout.getInstance().deleteAxis("MoveRightAxis");
-			
-			var format:TextFormat = new flash.text.TextFormat();
-			format.size = 30;
-			format.font = "Times New Roman";
-			format.color = 0xFF0000;
-			format.bold = true;
-			format.align = TextFormatAlign.CENTER
-			var text:TextField = new TextField();
-			text.text = "GAME OVER MAN!";
-			text.setTextFormat(format);
-			text.autoSize = TextFieldAutoSize.LEFT;
-			text.x = _stage.stageWidth / 2 - text.width / 2;
-			text.y = _stage.stageHeight / 2 - text.height / 2;
-			_stage.addChild(text);
-		}
-		
-		private static function Exit(event:MouseEvent = null):void
+		private static function exit(event:MouseEvent = null):void
 		{
 			fscommand("quit");
 		}
 		
-		// Event handlers //
-		
-		private static function onActorSpawnedEventHandler(event:ActorEvent):void
+		private static function victory(event:Event = null):void
 		{
-			if (event.actor is Brick)
-			{
-				bricksCount++;
-			}
-			else if (event.actor is Ball)
-			{
-				ballsCount++;
-			}
+			_active = false;
+			_level.dispose();
+			var format:TextFormat = formatText(30, "Times New Roman", 0x00FF00);
+			_endGameLabel = spawnTextField("YOU WIN!\nPRESS ESC TO EXIT TO MENU", TextFieldAutoSize.LEFT, format, _stage.stageWidth / 2 - 200, _stage.stageHeight / 2 - 50, true, "EndGameLabel");
+			
+			InputLayout.getInstance().bindAction("BackToMenu", ActionEvent.ACTION_KEY_DOWN, backToMenu);
 		}
 		
-		private static function onActorDisposedEventHandler(event:ActorEvent):void
+		private static function defeat(event:Event = null):void
 		{
-			if (event.actor is Brick)
-			{
-				bricksCount--;
-			}
-			else if (event.actor is Ball)
-			{
-				ballsCount--;
-			}
+			_active = false;
+			_level.dispose();
+			var format:TextFormat = formatText(30, "Times New Roman", 0xFF0000);
+			_endGameLabel = spawnTextField("GAME OVER MAN!\nPRESS ESC TO EXIT TO MENU", TextFieldAutoSize.LEFT, format, _stage.stageWidth / 2 - 200, _stage.stageHeight / 2 - 50, true, "EndGameLabel");
+			
+			InputLayout.getInstance().bindAction("BackToMenu", ActionEvent.ACTION_KEY_DOWN, backToMenu);
+		}
+		
+		// Utils //
+		private static function loadMenu():void
+		{
+			MenuManager.createMenu("Main Menu",
+				MenuManager.createButton(startDemoLevel, "DEMO LEVEL", _stage.stageWidth / 2 - 70, 200, 26, "Times New Roman", 0x0077FF),
+				MenuManager.createButton(exit, "EXIT", _stage.stageWidth / 2 - 20, 280, 26, "Times New Roman", 0x0077FF));
+		}
+		
+		private static function removeTextFields():void
+		{
+			_stage.removeChild(_endGameLabel);
+			_stage.removeChild(_healthBar);
+			_stage.removeChild(_scoreBar);
+			_stage.removeChild(_bricksDestroyedBar);
+		}
+		
+		private static function spawnTextField(text:String, autoSize:String, format:TextFormat, x:Number, y:Number, multiline:Boolean = false, name:String = null):TextField
+		{
+			var textField:TextField = new TextField();
+			textField.text = text;
+			textField.multiline = multiline;
+			textField.autoSize = autoSize;
+			textField.setTextFormat(format);
+			textField.x = x;
+			textField.y = y;
+			textField.name = name ? name : NameUtil.createUniqueName(textField);
+			_stage.addChild(textField);
+			
+			return textField;
+		}
+		
+		private static function formatText(size:Number, font:String, color:uint, align:String = TextFormatAlign.CENTER, bold:Boolean = true):TextFormat
+		{
+			var format:TextFormat = new TextFormat();
+			format.size = size;
+			format.font = font;
+			format.color = color;
+			format.bold = bold;
+			format.align = align;
+			
+			return format;
 		}
 		
 	}

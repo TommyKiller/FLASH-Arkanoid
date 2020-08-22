@@ -31,7 +31,7 @@ package input
 		{
 			if (!_instance)
 			{
-				fullFillKeyBindings();
+				loadKeyBindings();
 				_instance = this;
 				_stage = stage;
 				_inputEventsQueue = new Vector.<InputEvent>();
@@ -51,11 +51,16 @@ package input
 			}
 		}
 		
-		private function fullFillKeyBindings():void
+		private function loadKeyBindings():void
 		{
 			_keys = new Dictionary();
 			_keys[65] = InputEvent.A_KEY;
 			_keys[68] = InputEvent.D_KEY;
+			_keys[37] = InputEvent.LEFT_ARROW_KEY;
+			_keys[39] = InputEvent.RIGHT_ARROW_KEY;
+			_keys[27] = InputEvent.ESC_KEY;
+			_keys[32] = InputEvent.SPACEBAR_KEY;
+			
 		}
 		
 		public static function getInstance(stage:Stage = null):InputController
@@ -108,10 +113,7 @@ package input
 			{
 				var event:InputEvent = _inputEventsQueue.shift();
 				
-				if (event.state != InputEventState.REPEAT)
-				{
-					dispatchEvent(event);
-				}
+				dispatchEvent(event);
 				
 				if (event.state == InputEventState.PUSHED)
 				{
