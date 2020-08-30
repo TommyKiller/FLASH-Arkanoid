@@ -8,7 +8,6 @@ package actors
 	import input.InputLayout;
 	import input.events.ActionEvent;
 	import interfaces.IDisposable;
-	import interfaces.IRenderable;
 	import mx.utils.NameUtil;
 	import physics.CollisionManager;
 	import physics.Vector2D;
@@ -17,7 +16,7 @@ package actors
 	 * ...
 	 * @author Tommy
 	 */
-	public class Ball extends Sprite implements IDisposable, IRenderable
+	public class Ball extends Sprite implements IDisposable
 	{
 		
 		public static const BALL_DESTROYED:String = "ballDestroyed";
@@ -166,6 +165,14 @@ package actors
 			InputLayout.getInstance().getAction("ThrowBall").addEventListener(ActionEvent.ACTION_KEY_DOWN, startBouncing);
 		}
 		
+		private function render():void
+		{
+			graphics.clear();
+			graphics.beginFill(color);
+			graphics.drawCircle(0, 0, radius);
+			graphics.endFill();
+		}
+		
 		/* INTERFACE interfaces.IDisposable */
 		
 		public function dispose():void
@@ -177,16 +184,6 @@ package actors
 				
 				_disposed = true;
 			}
-		}
-		
-		/* INTERFACE interfaces.IRenderable */
-		
-		public function render():void
-		{
-			graphics.clear();
-			graphics.beginFill(color);
-			graphics.drawCircle(0, 0, radius);
-			graphics.endFill();
 		}
 	
 	}

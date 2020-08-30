@@ -9,7 +9,6 @@ package actors
 	import input.InputLayout;
 	import input.events.AxisEvent;
 	import interfaces.IDisposable;
-	import interfaces.IRenderable;
 	import mx.utils.NameUtil
 	import physics.Vector2D;
 	
@@ -17,7 +16,7 @@ package actors
 	 * ...
 	 * @author Tommy
 	 */
-	public class Platform extends Sprite implements IDisposable, IRenderable
+	public class Platform extends Sprite implements IDisposable,
 	{
 		
 		public static const PLATFORM_MOVED:String = "platformMoved";
@@ -134,6 +133,14 @@ package actors
 			_velocity.x = event.result.axisValue;
 		}
 		
+		private function render():void
+		{
+			graphics.clear();
+			graphics.beginFill(color);
+			graphics.drawRect(0, 0, width, height);
+			graphics.endFill();
+		}
+		
 		/* INTERFACE interfaces.IDisposable */
 		
 		public function dispose():void
@@ -147,16 +154,6 @@ package actors
 				
 				_disposed = true;
 			}
-		}
-		
-		/* INTERFACE interfaces.IRenderable */
-		
-		public function render():void
-		{
-			graphics.clear();
-			graphics.beginFill(color);
-			graphics.drawRect(0, 0, width, height);
-			graphics.endFill();
 		}
 	
 	}

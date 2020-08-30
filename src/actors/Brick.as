@@ -6,14 +6,13 @@ package actors
 	import flash.display.Stage;
 	import flash.events.Event;
 	import interfaces.IDisposable;
-	import interfaces.IRenderable;
 	import mx.utils.NameUtil;
 	
 	/**
 	 * ...
 	 * @author Tommy
 	 */
-	public class Brick extends Sprite implements IDisposable, IRenderable
+	public class Brick extends Sprite implements IDisposable
 	{
 		
 		public static const BRICK_HIT:String = "brickHit";
@@ -110,6 +109,14 @@ package actors
 			_height = value;
 		}
 		
+		private function render():void
+		{
+			graphics.clear();
+			graphics.beginFill(color[_health - 1]);
+			graphics.drawRect(0, 0, width, height);
+			graphics.endFill();
+		}
+		
 		/* INTERFACE interfaces.IDisposable */
 		
 		public function dispose():void
@@ -120,17 +127,7 @@ package actors
 				
 				_disposed = true;
 			}
-		}
-		
-		/* INTERFACE interfaces.IRenderable */
-		
-		public function render():void
-		{
-			graphics.clear();
-			graphics.beginFill(color[_health - 1]);
-			graphics.drawRect(0, 0, width, height);
-			graphics.endFill();
-		}
+		}		
 		
 	}
 

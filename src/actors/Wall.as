@@ -3,14 +3,13 @@ package actors
 	import flash.display.Shape;
 	import flash.events.Event;
 	import interfaces.IDisposable;
-	import interfaces.IRenderable;
 	import mx.utils.NameUtil;
 	
 	/**
 	 * ...
 	 * @author Tommy
 	 */
-	public class Wall extends Shape implements IDisposable, IRenderable
+	public class Wall extends Shape implements IDisposable
 	{
 		
 		private var _width:Number;
@@ -74,6 +73,13 @@ package actors
 			_height = value;
 		}
 		
+		private function render():void 
+		{
+			graphics.beginFill(color);
+			graphics.drawRect(0, 0, width, height);
+			graphics.endFill();
+		}
+		
 		/* INTERFACE interfaces.IDisposable */
 		
 		public function dispose():void 
@@ -83,15 +89,6 @@ package actors
 				ActorsManager.removeObject(this);
 				_disposed = true;
 			}
-		}
-		
-		/* INTERFACE interfaces.IRenderable */
-		
-		public function render():void 
-		{
-			graphics.beginFill(color);
-			graphics.drawRect(0, 0, width, height);
-			graphics.endFill();
 		}
 		
 	}

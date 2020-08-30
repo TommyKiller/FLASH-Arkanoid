@@ -114,19 +114,19 @@ package levels
 		// Event handlers //
 		private function onBrickHitEventHandler(event:ActorEvent):void
 		{
-			Game.score += 1;
+			Application.score += 1;
 		}
 		
 		private function onBrickDestroyedEventHandler(event:ActorEvent):void
 		{
-			Game.score += 5;
+			Application.score += 5;
 			
-			Game.bricksDestroyed += 1;
+			Application.bricksDestroyed += 1;
 		}
 		
 		private function onRowDestroyedEventHandler(event:Event):void
 		{
-			Game.score += 10;
+			Application.score += 10;
 			
 			for (var i:int = 0; i < _brickRows.length; i++)
 			{
@@ -151,7 +151,7 @@ package levels
 		
 		private function onBallDestroyedEventHandler(event:ActorEvent):void
 		{
-			Game.health -= 1;
+			Application.health -= 1;
 			
 			if (!_disposed)
 			{
