@@ -1,118 +1,32 @@
 package actors
 {
-	import actors.ActorsManager;
-	import actors.events.ActorEvent;
-	import flash.display.Shape;
+	import framework.graphics.actors.events.PawnActorEvent;
 	import flash.display.Sprite;
-	import flash.display.Stage;
 	import flash.events.Event;
-	import input.InputLayout;
-	import input.events.AxisEvent;
-	import interfaces.IDisposable;
-	import mx.utils.NameUtil
-	import physics.Vector2D;
+	import framework.input.InputLayout;
+	import framework.input.events.AxisEvent;
 	
 	/**
 	 * ...
 	 * @author Tommy
 	 */
-	public class Platform extends Sprite implements IDisposable,
+	public class Platform extends PawnActor
 	{
 		
 		public static const PLATFORM_MOVED:String = "platformMoved";
 		
-		private var _width:Number;
-		private var _height:Number;
-		private var _speed:uint;
-		private var _color:uint;
-		private var _disposed:Boolean;
-		private var _friction:Number;
-		private var _velocity:Vector2D;
-		
-		public function Platform(width:Number, height:Number, speed:uint, color:uint, friction:Number, x:Number = 0, y:Number = 0, name:String = null)
+		public function Platform(width:Number, height:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null)
 		{
-			this.width = width;
-			this.height = height;
-			_speed = speed;
-			_color = color;
-			this.x = x;
-			this.y = y;
-			this.friction = friction;
-			this.name = name ? name : NameUtil.createUniqueName(this);
-			_disposed = false;
-			_velocity = new Vector2D();
+			var model:Sprite = new Sprite();
+			model.x = x;
+			model.y = y;
+			model.graphics.beginFill(color);
+			model.graphics.drawRect(0, 0, width, height);
+			model.graphics.endFill();
+			super(model, speed, name);
 			
-			if (stage) init();
-			else addEventListener(Event.ADDED_TO_STAGE, init);
-		}
-		
-		private function init(e:Event = null):void
-		{
-			removeEventListener(Event.ADDED_TO_STAGE, init);
 			addEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
 			InputLayout.getInstance().bindAxis("MoveRightAxis", onMoveRightEventHandler);
-			render();
-		}
-		
-		// Get/set methods //
-		public function get speed():Number
-		{
-			return _speed;
-		}
-		
-		public function get color():uint
-		{
-			return _color;
-		}
-		
-		public override function get width():Number
-		{
-			return _width;
-		}
-		
-		public override function set width(value:Number):void
-		{
-			if (value <= 0)
-			{
-				throw new Error("Width of the platform must be greater than 0.");
-			}
-			
-			_width = value;
-		}
-		
-		public override function get height():Number
-		{
-			return _height;
-		}
-		
-		public override function set height(value:Number):void
-		{
-			if (value <= 0)
-			{
-				throw new Error("Height of the platform must be greater than 0.");
-			}
-			
-			_height = value;
-		}
-		
-		public function get friction():Number
-		{
-			return _friction;
-		}
-		
-		public function set friction(value:Number):void
-		{
-			if (value < 0 || value > 1)
-			{
-				throw new Error("Friction of the platform must be between 0 and 1.");
-			}
-			
-			_friction = value;
-		}
-		
-		public function get velocity():Vector2D
-		{
-			return _velocity;
 		}
 		
 		// Event handlers //
@@ -124,7 +38,7 @@ package actors
 			{
 				x = newX;
 				
-				dispatchEvent(new ActorEvent(PLATFORM_MOVED, this));
+				dispatchEvent(new PawnActorEvent(PLATFORM_MOVED, this));
 			}
 		}
 		
@@ -133,26 +47,15 @@ package actors
 			_velocity.x = event.result.axisValue;
 		}
 		
-		private function render():void
-		{
-			graphics.clear();
-			graphics.beginFill(color);
-			graphics.drawRect(0, 0, width, height);
-			graphics.endFill();
-		}
-		
-		/* INTERFACE interfaces.IDisposable */
-		
-		public function dispose():void
+		public override function dispose():void
 		{
 			if (!_disposed)
 			{
+				super().dispose();
+				
 				// Unsubscribe from events //
 				InputLayout.getInstance().unbindAxis("MoveRightAxis", onMoveRightEventHandler);
 				removeEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
-				ActorsManager.removeObject(this);
-				
-				_disposed = true;
 			}
 		}
 	

@@ -1,83 +1,34 @@
 package actors
 {
-	import actors.ActorsManager;
-	import actors.events.ActorEvent;
+	import framework.graphics.actors.PawnActor;
+	import framework.graphics.actors.events.ActorEvent;
 	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.events.Event;
-	import input.InputLayout;
-	import input.events.ActionEvent;
-	import interfaces.IDisposable;
+	import framework.input.InputLayout;
+	import framework.input.events.ActionEvent;
+	import framework.interfaces.IDisposable;
 	import mx.utils.NameUtil;
-	import physics.CollisionManager;
-	import physics.Vector2D;
+	import framework.physics.CollisionManager;
+	import framework.math.Vector2D;
 	
 	/**
 	 * ...
 	 * @author Tommy
 	 */
-	public class Ball extends Sprite implements IDisposable
+	public class Ball extends PawnActor
 	{
 		
 		public static const BALL_DESTROYED:String = "ballDestroyed";
 		
-		private var _radius:Number;
-		private var _speed:uint;
-		private var _color:uint;
-		private var _disposed:Boolean;
-		private var _velocity:Vector2D;
-		private var _platform:Platform;
-		
 		public function Ball(radius:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null)
 		{
-			_radius = radius;
-			_speed = speed;
-			_color = color;
-			this.x = x;
-			this.y = y;
-			this.name = name ? name : NameUtil.createUniqueName(this);
-			_disposed = false;
-			_velocity = new Vector2D(0, -1);
-			
-			if (stage) init();
-			else addEventListener(Event.ADDED_TO_STAGE, init);
-		}
-		
-		private function init(e:Event = null):void
-		{
-			removeEventListener(Event.ADDED_TO_STAGE, init);
-			render();
-		}
-		
-		// Get/set methods //
-		public function get speed():Number
-		{
-			return _speed;
-		}
-		
-		public function set speed(value:Number):void
-		{
-			_speed = value;
-		}
-		
-		public function get color():uint
-		{
-			return _color;
-		}
-		
-		public function get radius():Number
-		{
-			return _radius;
-		}
-		
-		public function set radius(value:Number):void
-		{
-			if (value <= 0)
-			{
-				throw new Error("Radius of the ball must be greater than 0.");
-			}
-			
-			_radius = value;
+			var model:Sprite = new Sprite();
+			model.graphics.beginFill(color);
+			model.graphics.drawCircle(x, y, radius);
+			model.graphics.endFill();
+			super(model, speed, name);
+			velocity.y = -1;
 		}
 		
 		// Event handlers //
@@ -165,22 +116,13 @@ package actors
 			InputLayout.getInstance().getAction("ThrowBall").addEventListener(ActionEvent.ACTION_KEY_DOWN, startBouncing);
 		}
 		
-		private function render():void
-		{
-			graphics.clear();
-			graphics.beginFill(color);
-			graphics.drawCircle(0, 0, radius);
-			graphics.endFill();
-		}
-		
 		/* INTERFACE interfaces.IDisposable */
 		
 		public function dispose():void
 		{
 			if (!_disposed)
 			{
-				stage.removeEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
-				ActorsManager.removeObject(this);
+				_model.stage.removeEventListener(Event.ENTER_FRAME, onEnterFrameEventHandler);
 				
 				_disposed = true;
 			}
