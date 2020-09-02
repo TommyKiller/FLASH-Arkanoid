@@ -1,5 +1,6 @@
 package controllers
 {
+	import flash.display.Stage;
 	import framework.ui.Controller;
 	import views.MainView;
 	import views.SelectLevelView;
@@ -11,15 +12,21 @@ package controllers
 	public class SelectLevelController extends Controller
 	{
 		
-		public static function startLevel(level:Class):void
+		public function SelectLevelController(view:SelectLevelView)
+		{
+			super(view);
+		}
+		
+		public function startLevel(level:Class):void
 		{
 			trace("level selected");
 		}
 		
-		public static function back():void
+		public function back():void
 		{
-			view.dispose();
 			Application.stage.addChild(new MainView());
+			
+			dispose();
 		}
 	
 	}

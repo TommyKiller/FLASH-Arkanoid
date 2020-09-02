@@ -1,5 +1,7 @@
 package framework.graphics.actors
 {
+	import flash.utils.getDefinitionByName;
+	import flash.utils.getQualifiedClassName;
 	import framework.graphics.actors.events.ActorEvent;
 	import flash.events.EventDispatcher;
 	import framework.graphics.Scene;
@@ -26,7 +28,6 @@ package framework.graphics.actors
 			}
 			
 			_disposed = false;
-			_stage = stage;
 			_name = name ? name : NameUtil.createUniqueName(this);
 		}
 		
@@ -41,7 +42,7 @@ package framework.graphics.actors
 			return _scene;
 		}
 		
-		public function set scene(value:Scene):Scene
+		public function set scene(value:Scene):void
 		{
 			_scene = value;
 			
@@ -66,7 +67,7 @@ package framework.graphics.actors
 			{
 				scene.removeActor(this);
 				
-				dispatchEvent(new ActorEvent(ActorEvent.ACTOR_DISPOSED));
+				dispatchEvent(new ActorEvent(ActorEvent.ACTOR_DISPOSED, this));
 			}
 			
 			_disposed = true;

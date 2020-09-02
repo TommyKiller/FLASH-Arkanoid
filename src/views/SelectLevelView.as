@@ -18,8 +18,6 @@ package views
 		
 		public function SelectLevelView() 
 		{
-			super(SelectLevelController);
-			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 		}
@@ -77,12 +75,12 @@ package views
 		
 		private function btnDemoLevelClickEventHandler(event:MouseEvent):void
 		{
-			SelectLevelController.startLevel(DemoLevel);
+			(controller as SelectLevelController).startLevel(DemoLevel);
 		}
 		
 		private function btnBackClickEventHandler(event:MouseEvent):void
 		{
-			SelectLevelController.back();
+			(controller as SelectLevelController).back();
 		}
 		
 	}

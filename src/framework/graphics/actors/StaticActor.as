@@ -1,7 +1,7 @@
 package framework.graphics.actors 
 {
+	import flash.display.Sprite;
 	import framework.graphics.actors.events.ActorEvent;
-	import flash.display.DisplayObject;
 	import flash.display.Stage;
 	/**
 	 * ...
@@ -10,9 +10,9 @@ package framework.graphics.actors
 	public class StaticActor extends Actor 
 	{
 		
-		protected var _model:DisplayObject;
+		protected var _model:Sprite;
 		
-		public function StaticActor(model:DisplayObject, name:String = null) 
+		public function StaticActor(model:Sprite, name:String = null) 
 		{
 			super(name);
 			_model = model;
@@ -21,12 +21,25 @@ package framework.graphics.actors
 			else addEventListener(ActorEvent.ADDED_TO_SCENE, init);
 		}
 		
-		private function init(event:ActorEvent):void
+		private function init(event:ActorEvent = null):void
 		{
 			removeEventListener(ActorEvent.ADDED_TO_SCENE, init);
 			
-			scene.stage.addChild(_model);
+			scene.stage.addChild(model);
 		}
+		
+		// Get/set methods //
+		public function get model():Sprite
+		{
+			return _model;
+		}
+		
+		public function set model(value:Sprite):void
+		{
+			_model = value;
+		}
+		
+		/* INTERFACE interfaces.IDisposable */
 		
 		override public function dispose():void 
 		{

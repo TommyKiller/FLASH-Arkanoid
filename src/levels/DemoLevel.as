@@ -1,6 +1,5 @@
 package levels 
 {
-	import framework.graphics.actors.ActorsManager;
 	import actors.Ball;
 	import actors.Brick;
 	import actors.Platform;

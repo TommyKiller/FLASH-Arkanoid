@@ -24,8 +24,6 @@ package views
 		
 		private function init(event:Event = null):void
 		{
-			MainController.view = this;
-			
 			// Components initialization //
 			var textFormat:TextFormat;
 			var buttonText:TextField;
@@ -78,12 +76,12 @@ package views
 		
 		private function btnSelectLevelClickEventHandler(event:MouseEvent):void
 		{
-			MainController.selectLevel();
+			(controller as MainController).selectLevel();
 		}
 		
 		private function btnExitClickEventHandler(event:MouseEvent):void
 		{
-			MainController.exit();
+			(controller as MainController).exit();
 		}
 		
 	}

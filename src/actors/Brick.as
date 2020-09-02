@@ -1,12 +1,9 @@
 package actors 
 {
-	import framework.graphics.actors.ActorsManager;
+	import framework.graphics.actors.StaticActor;
 	import framework.graphics.actors.events.ActorEvent;
 	import flash.display.Sprite;
-	import flash.display.Stage;
-	import flash.events.Event;
 	import framework.interfaces.IDestructible;
-	import framework.interfaces.IDisposable;
 	import mx.utils.NameUtil;
 	
 	/**
@@ -66,10 +63,10 @@ package actors
 		
 		private function render():void
 		{
-			_model.graphics.clear();
-			_model.graphics.beginFill(_colors[_health - 1]);
-			_model.graphics.drawRect(0, 0, _model.width, _model.height);
-			_model.graphics.endFill();
+			model.graphics.clear();
+			model.graphics.beginFill(_colors[_health - 1]);
+			model.graphics.drawRect(0, 0, _model.width, _model.height);
+			model.graphics.endFill();
 		}
 		
 	}

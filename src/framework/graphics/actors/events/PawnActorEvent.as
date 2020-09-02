@@ -7,14 +7,16 @@ package framework.graphics.actors.events
 	 * ...
 	 * @author Tommy
 	 */
-	public class PawnActorEvent extends ActorEvent 
+	public class PawnActorEvent extends Event 
 	{
 		
 		public static const ACTOR_MOVED:String = "actorMoved";
 		
+		public var actor:PawnActor;
+		
 		public function PawnActorEvent(type:String, actor:PawnActor, bubbles:Boolean=false, cancelable:Boolean=false) 
 		{ 
-			super(type, actor, bubbles, cancelable);
+			super(type, bubbles, cancelable);
 		} 
 		
 		public override function clone():Event 

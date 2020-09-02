@@ -1,7 +1,7 @@
 package actors 
 {
-	import flash.display.Shape;
-	import flash.display.Stage;
+	import flash.display.Sprite;
+	import framework.graphics.actors.StaticActor;
 	
 	/**
 	 * ...
@@ -12,7 +12,7 @@ package actors
 		
 		public function Wall(width:Number, height:Number, color:uint, x:Number = 0, y:Number = 0, name:String = null) 
 		{
-			var model:Shape = new Shape();
+			var model:Sprite = new Sprite();
 			model.x = x;
 			model.y = y;
 			model.graphics.beginFill(color);

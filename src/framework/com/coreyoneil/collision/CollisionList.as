@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 */
 
-package com.coreyoneil.collision
+package framework.com.coreyoneil.collision
 {	
 	import flash.display.DisplayObject;
 	

@@ -1,5 +1,6 @@
 package actors
 {
+	import framework.graphics.actors.PawnActor;
 	import framework.graphics.actors.events.PawnActorEvent;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -12,8 +13,6 @@ package actors
 	 */
 	public class Platform extends PawnActor
 	{
-		
-		public static const PLATFORM_MOVED:String = "platformMoved";
 		
 		public function Platform(width:Number, height:Number, speed:uint, color:uint, x:Number = 0, y:Number = 0, name:String = null)
 		{
@@ -32,26 +31,26 @@ package actors
 		// Event handlers //
 		private function onEnterFrameEventHandler(event:Event):void
 		{
-			var newX:Number = x + velocity.x * speed;
+			var newX:Number = model.x + velocity.x * speed;
 			
-			if (newX >= 0 && newX + width <= stage.stageWidth)
+			if (newX >= 0 && newX + model.width <= model.stage.stageWidth)
 			{
-				x = newX;
+				model.x = newX;
 				
-				dispatchEvent(new PawnActorEvent(PLATFORM_MOVED, this));
+				dispatchEvent(new PawnActorEvent(PawnActorEvent.ACTOR_MOVED, this));
 			}
 		}
 		
 		private function onMoveRightEventHandler(event:AxisEvent):void
 		{
-			_velocity.x = event.result.axisValue;
+			velocity.x = event.result.axisValue;
 		}
 		
-		public override function dispose():void
+		override public function dispose():void
 		{
-			if (!_disposed)
+			if (!disposed)
 			{
-				super().dispose();
+				super.dispose();
 				
 				// Unsubscribe from events //
 				InputLayout.getInstance().unbindAxis("MoveRightAxis", onMoveRightEventHandler);

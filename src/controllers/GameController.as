@@ -1,5 +1,7 @@
 package controllers 
 {
+	import flash.display.Stage;
+	import framework.graphics.Scene;
 	import framework.ui.Controller;
 	import views.GameView;
 	
@@ -7,9 +9,17 @@ package controllers
 	 * ...
 	 * @author Tommy
 	 */
-	public class GameController extends Controller
+	public class GameController extends Controller 
 	{
-		// TO BE DONE //
+		
+		private var _scene:Scene;
+		
+		public function GameController(view:GameView) 
+		{
+			super(view);
+			
+			_scene = new Scene((view as GameView).sceneStage);
+		}
 		
 	}
 

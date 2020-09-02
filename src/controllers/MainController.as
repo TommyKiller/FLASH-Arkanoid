@@ -13,13 +13,19 @@ package controllers
 	public class MainController extends Controller
 	{
 		
-		public static function selectLevel():void
+		public function MainController(view:MainView)
 		{
-			view.dispose();
-			Application.stage.addChild(new SelectLevelView());
+			super(view);
 		}
 		
-		public static function exit():void
+		public function selectLevel():void
+		{
+			Application.stage.addChild(new SelectLevelView());
+			
+			dispose();
+		}
+		
+		public function exit():void
 		{
 			fscommand("quit");
 		}

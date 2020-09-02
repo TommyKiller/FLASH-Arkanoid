@@ -19,12 +19,10 @@ package views
 		public static const LABEL_HEALTH:String = "lblHealth";
 		public static const LABEL_SCORE:String = "lblScore";
 		public static const LABEL_BRICKS_DESTROYED:String = "lblBricksDestroyed";
-		public static const SCENE:String = "scene";
+		public static const SCENE_STAGE:String = "sceneStage";
 		
 		public function GameView() 
 		{
-			super(GameController);
-			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 		}
@@ -34,7 +32,7 @@ package views
 			var format:TextFormat;
 			var text:TextField;
 			var group:Sprite;
-			var scene:Stage;
+			var sceneStage:Stage;
 			
 			/* grpUpperLayout */
 			group = new Sprite();
@@ -44,10 +42,10 @@ package views
 			addChild(group);
 			
 			/* sceneGame */
-			scene = new Stage();
-			scene.name = SCENE;
-			scene.y = group.height;
-			addChild(scene);
+			sceneStage = new Stage();
+			sceneStage.name = SCENE_STAGE;
+			sceneStage.y = group.height;
+			addChild(sceneStage);
 			
 			/* lblHealth */
 			format = new TextFormat();
@@ -97,9 +95,9 @@ package views
 			}
 		}
 		
-		public function get scene():Stage
+		public function get sceneStage():Stage
 		{
-			return getChildByName(SCENE);
+			return getChildByName(SCENE_STAGE);
 		}
 		
 	}

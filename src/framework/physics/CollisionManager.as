@@ -1,6 +1,6 @@
 package framework.physics 
 {
-	import com.coreyoneil.collision.CollisionList;
+	import framework.com.coreyoneil.collision.CollisionList;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	/**

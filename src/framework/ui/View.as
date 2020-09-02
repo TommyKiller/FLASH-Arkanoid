@@ -1,5 +1,5 @@
 package framework.ui 
-{]
+{
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.utils.getDefinitionByName;
@@ -14,12 +14,13 @@ package framework.ui
 	{
 		
 		protected var _disposed:Boolean;
+		protected var _controller:Controller;
 		
 		public function View() 
-		{			
+		{
 			if (Class(getDefinitionByName(getQualifiedClassName(this))) == View)
 			{
-				throw new Error("Menu is an abstract class and is not meant for instantiation.");
+				throw new Error("View is an abstract class and is not meant for instantiation.");
 			}
 			
 			if (stage) init();
@@ -28,6 +29,10 @@ package framework.ui
 		
 		private function init(event:Event = null):void
 		{
+			var viewClassName:String = getQualifiedClassName(this);
+			var controllerClassName:String = viewClassName.replace("views", "controllers").replace("View", "Controller");
+			controller = new (Class(getDefinitionByName(controllerClassName)))(this);
+			
 			_disposed = false;
 		}
 		
@@ -39,6 +44,17 @@ package framework.ui
 		public function hide():void
 		{
 			visible = false;
+		}
+		
+		// Get/set methods //
+		public function get controller():Controller
+		{
+			return _controller;
+		}
+		
+		public function set controller(value:Controller):void
+		{
+			_controller = value;
 		}
 		
 		/* INTERFACE interfaces.IDisposable */
