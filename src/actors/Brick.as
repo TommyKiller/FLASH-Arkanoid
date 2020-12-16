@@ -1,7 +1,7 @@
 package actors 
 {
 	import framework.graphics.actors.StaticActor;
-	import framework.graphics.actors.events.ActorEvent;
+	import framework.actors.events.ActorEvent;
 	import flash.display.Sprite;
 	import framework.interfaces.IDestructible;
 	import mx.utils.NameUtil;

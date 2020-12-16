@@ -1,6 +1,6 @@
 package actors
 {
-	import framework.graphics.actors.PawnActor;
+	import framework.actors.PawnActor;
 	import framework.graphics.actors.events.PawnActorEvent;
 	import flash.display.Sprite;
 	import flash.events.Event;

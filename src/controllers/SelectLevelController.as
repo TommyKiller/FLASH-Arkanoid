@@ -2,6 +2,8 @@ package controllers
 {
 	import flash.display.Stage;
 	import framework.ui.Controller;
+	import models.GameModel;
+	import views.GameView;
 	import views.MainView;
 	import views.SelectLevelView;
 	
@@ -19,7 +21,9 @@ package controllers
 		
 		public function startLevel(level:Class):void
 		{
-			trace("level selected");
+			Application.stage.addChild(new GameView(new GameModel(level)));
+			
+			dispose();
 		}
 		
 		public function back():void

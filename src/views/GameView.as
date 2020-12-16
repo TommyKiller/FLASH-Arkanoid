@@ -2,11 +2,12 @@ package views
 {
 	import controllers.GameController;
 	import flash.display.Sprite;
-	import flash.display.Stage;
+	import flash.events.Event;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.text.TextFormatAlign;
 	import framework.ui.View;
+	import models.GameModel;
 	import mx.utils.StringUtil;
 	
 	/**
@@ -19,20 +20,27 @@ package views
 		public static const LABEL_HEALTH:String = "lblHealth";
 		public static const LABEL_SCORE:String = "lblScore";
 		public static const LABEL_BRICKS_DESTROYED:String = "lblBricksDestroyed";
-		public static const SCENE_STAGE:String = "sceneStage";
+		public static const SCENE:String = "scene";
 		
-		public function GameView() 
+		private var _model:GameModel;
+		
+		public function GameView(model:GameModel) 
 		{
+			_model = model;
+			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
 		private function init(event:Event = null):void
 		{
+			// Controller init //
+			(controller as GameController).init(_model);
+			
 			var format:TextFormat;
 			var text:TextField;
 			var group:Sprite;
-			var sceneStage:Stage;
+			var scene:Sprite;
 			
 			/* grpUpperLayout */
 			group = new Sprite();
@@ -42,10 +50,10 @@ package views
 			addChild(group);
 			
 			/* sceneGame */
-			sceneStage = new Stage();
-			sceneStage.name = SCENE_STAGE;
-			sceneStage.y = group.height;
-			addChild(sceneStage);
+			scene = new Sprite();
+			scene.name = SCENE;
+			scene.y = group.height;
+			addChild(scene);
 			
 			/* lblHealth */
 			format = new TextFormat();
@@ -95,9 +103,9 @@ package views
 			}
 		}
 		
-		public function get sceneStage():Stage
+		public function get scene():Sprite
 		{
-			return getChildByName(SCENE_STAGE);
+			return getChildByName(SCENE) as Sprite;
 		}
 		
 	}

@@ -1,7 +1,7 @@
-package framework.graphics.actors.events 
+package framework.actors.events 
 {
-	import framework.graphics.actors.Actor;
 	import flash.events.Event;
+	import framework.actors.Actor;
 	
 	/**
 	 * ...
@@ -10,8 +10,11 @@ package framework.graphics.actors.events
 	public class ActorEvent extends Event 
 	{
 		
-		public static const ACTOR_DISPOSED:String = "actorDisposed";
+		public static const ADDED:String = "actorAdded";
+		public static const REMOVED:String = "actorRemoved";
 		public static const ADDED_TO_SCENE:String = "addedToScene";
+		public static const REMOVED_FROM_SCENE:String = "removedFromScene";
+		public static const DISPOSED:String = "actorDisposed";
 		
 		public var actor:Actor;
 		
@@ -28,7 +31,7 @@ package framework.graphics.actors.events
 		
 		public override function toString():String 
 		{ 
-			return formatToString("ActorsEvent", "type", "bubbles", "cancelable", "eventPhase"); 
+			return formatToString("ActorsEvent", "actor", "type", "bubbles", "cancelable", "eventPhase"); 
 		}
 		
 	}

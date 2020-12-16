@@ -1,7 +1,7 @@
-package levels 
+package actors 
 {
 	import actors.Brick;
-	import framework.graphics.actors.events.ActorEvent;
+	import framework.actors.events.ActorEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import framework.interfaces.IDisposable;

@@ -2,9 +2,10 @@ package levels
 {
 	import actors.Ball;
 	import actors.Brick;
+	import actors.BrickRow;
 	import actors.Platform;
 	import actors.Wall;
-	import framework.graphics.actors.events.ActorEvent;
+	import framework.actors.events.ActorEvent;
 	import flash.display.Stage;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;

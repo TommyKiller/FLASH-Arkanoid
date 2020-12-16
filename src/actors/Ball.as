@@ -1,7 +1,7 @@
 package actors
 {
-	import framework.graphics.actors.PawnActor;
-	import framework.graphics.actors.events.ActorEvent;
+	import framework.actors.PawnActor;
+	import framework.actors.events.ActorEvent;
 	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.events.Event;
@@ -11,7 +11,7 @@ package actors
 	import framework.interfaces.IDisposable;
 	import mx.utils.NameUtil;
 	import framework.physics.CollisionManager;
-	import framework.math.Vector2D;
+	import framework.geom.Vector2D;
 	
 	/**
 	 * ...

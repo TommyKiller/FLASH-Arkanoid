@@ -3,6 +3,7 @@ package controllers
 	import flash.display.Stage;
 	import framework.graphics.Scene;
 	import framework.ui.Controller;
+	import models.GameModel;
 	import views.GameView;
 	
 	/**
@@ -17,8 +18,11 @@ package controllers
 		public function GameController(view:GameView) 
 		{
 			super(view);
-			
-			_scene = new Scene((view as GameView).sceneStage);
+		}
+		
+		public function init(model:GameModel):void
+		{
+			trace("Start game");
 		}
 		
 	}
